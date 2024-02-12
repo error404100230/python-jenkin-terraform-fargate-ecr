@@ -1,0 +1,17 @@
+version: '3.5'
+ 
+services:
+            
+  service-python:
+    image: ${USERHUB}/${ARTIFACT}:${NUMBER}
+    ports:
+      - 6007:8080
+    deploy:
+      mode: replicated
+      replicas: 3
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
