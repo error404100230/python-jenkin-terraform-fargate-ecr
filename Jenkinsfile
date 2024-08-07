@@ -19,6 +19,7 @@ pipeline{
         // Telegram Message Success and Failure
         TEXT_SUCCESS_BUILD = "${JOB_NAME} is Success"
         TEXT_FAILURE_BUILD = "${JOB_NAME} is Failure"
+
         
     }
 
@@ -38,7 +39,7 @@ pipeline{
             steps {
                 script {
                     // Define the repository URL
-                    def repoUrl = 'https://github.com/error404100230/python-docker'
+                    def repoUrl = 'https://github.com/error404100230/python-jenkin-terraform-fargate-ecr/'
 
                     // Get the list of branches using the Git Branch List plugin
                     def branches = getBranchList(repoUrl)
@@ -65,10 +66,8 @@ pipeline{
         stage('Build image in ECR'){
             steps{
                 script{
-                    sh 'pwd && cd /app-python'
                     dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}" 
                     //  dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}" 
-                     sh 'cd .. && pwd'
                 }
             }
         }
@@ -101,8 +100,7 @@ pipeline{
         stage('terraform'){
             steps{
                 script{
-                    sh "pwd"
-                    sh "cd terraform"
+                    sh "pwd && cd ${env.WORKSPACE}/terraform"
                     sh "terraform apply -var 'app_image=${IMAGE_REPO_NAME}:${IMAGE_TAG}' -input=false"
                 }
             }
@@ -123,6 +121,7 @@ pipeline{
         }
     }
 }
+
 
 // Function to get the list of branches from the repository
 def getBranchList(repoUrl) {
