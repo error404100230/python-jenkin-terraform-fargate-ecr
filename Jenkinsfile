@@ -101,7 +101,7 @@ pipeline{
             steps{
                 script{
                     sh "pwd && cd ${env.WORKSPACE}/terraform"
-                    sh "terraform apply -var 'app_image=${IMAGE_REPO_NAME}:${IMAGE_TAG}' -input=false"
+                    sh "/opt/homebrew/bin/terraform apply -var 'app_image=${IMAGE_REPO_NAME}:${IMAGE_TAG}' -input=false"
                 }
             }
         }
