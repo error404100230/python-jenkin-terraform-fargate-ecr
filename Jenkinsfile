@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        PATH = "/usr/local/bin/:$PATH"
+        PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}" 
         AWS_ACCOUNT_ID="767397732282"
         AWS_DEFAULT_REGION="ap-southeast-1"
         IMAGE_REPO_NAME="python"
@@ -74,7 +74,7 @@ pipeline{
         stage('Scan image with trivy'){
             steps{
                 script{
-                    sh "/opt/homebrew/bin/trivy image ${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+                    sh "trivy image ${IMAGE_REPO_NAME}:${IMAGE_TAG}"
                 }
             }
         }
@@ -85,7 +85,7 @@ pipeline{
         }
         stage('Logging into AWS ECR'){
             steps{
-                sh '/opt/homebrew/bin/aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 767397732282.dkr.ecr.ap-southeast-1.amazonaws.com'
+                sh 'aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 767397732282.dkr.ecr.ap-southeast-1.amazonaws.com'
             }
         }
         stage('Pushing into ECR'){
@@ -97,11 +97,23 @@ pipeline{
             }
         }
 
+        stage('Terraform Init') {
+            steps {
+                // Navigate to the Terraform directory and initialize Terraform
+                dir('terraform') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
         stage('terraform'){
             steps{
                 script{
-                    sh "pwd && cd ${env.WORKSPACE}/terraform"
-                    sh "/opt/homebrew/bin/terraform apply -var 'app_image=${IMAGE_REPO_NAME}:${IMAGE_TAG}' -input=false"
+                    
+                   dir('terraform') {
+                    sh "terraform apply -var 'app_image=${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
+                   }  
+                
                 }
             }
         }
