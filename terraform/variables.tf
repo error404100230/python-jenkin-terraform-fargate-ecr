@@ -1,8 +1,5 @@
 # variables.tf
 
-variable "access_key" {}
-variable "secret_key" {}
-
 variable "aws_alb_name" {
   description = "Specifying the name for aws_alb"
   default     = "myapp-load-balancer"
