@@ -111,7 +111,7 @@ pipeline{
                 script{
                     
                    dir('terraform') {
-                    sh "terraform apply -var 'app_image=${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
+                    sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                    }  
                 
                 }

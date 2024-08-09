@@ -1,5 +1,5 @@
 
-FROM python
+FROM --platform=linux/amd64 python
 
 WORKDIR /app/service
 
