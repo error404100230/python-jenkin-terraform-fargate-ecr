@@ -1,7 +1,7 @@
 
 FROM python
 
-WORKDIR /app
+WORKDIR /app/service
 
 COPY . /app
 
