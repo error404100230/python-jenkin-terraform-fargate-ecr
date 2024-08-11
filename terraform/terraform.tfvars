@@ -1,3 +1,3 @@
-  access_key =  "AKIAXIRUQSXHAKOB5GMM"
-  secret_key =  "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"
+  access_key =  "AKIA3FLDYD65OQXVLGVJ"
+  secret_key =  "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"
   # aws_alb_name = "myapp-load-balancer"
