@@ -19,13 +19,15 @@ pipeline {
         // Telegram Message Success and Failure
         TEXT_SUCCESS_BUILD = "${JOB_NAME} is Success"
         TEXT_FAILURE_BUILD = "${JOB_NAME} is Failure"
-
+        def DNS = ''
+        def STEP = ''
     }
 
     parameters {
         choice(name: 'ENVIRONMENT', choices: ['UAT', 'STAGE', 'PROD'], description: 'Choose the environment to deploy to')
     }
 
+  
     stages {
         stage('Preparation') {
             steps {
@@ -37,6 +39,7 @@ pipeline {
         stage('Checkout code') {
             steps {
                 script {
+                       STEP = "checkout source code"
                     // Define the repository URL
                     def repoUrl = 'https://github.com/error404100230/python-jenkin-terraform-fargate-ecr/'
 
@@ -64,6 +67,7 @@ pipeline {
         stage('Build image in ECR') {
             steps {
                 script {
+                    STEP = "Build image in ECR"
                     dir('service') {
                         dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
                     }
@@ -73,6 +77,7 @@ pipeline {
         stage('Scan image with trivy') {
             steps {
                 script {
+                    STEP = "Scan image with trivy"
                     sh "trivy image ${IMAGE_REPO_NAME}:${IMAGE_TAG}"
                 }
             }
@@ -84,12 +89,16 @@ pipeline {
         }
         stage('Logging into AWS ECR') {
             steps {
-                sh 'aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 767397732282.dkr.ecr.ap-southeast-1.amazonaws.com'
+                script {
+                    STEP = "Logging into AWS ECR"
+                    sh "aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 767397732282.dkr.ecr.ap-southeast-1.amazonaws.com"
+                }
             }
         }
         stage('Pushing into ECR') {
             steps {
                 script {
+                    STEP = "Pushing into ECR"
                     sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
                     sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
                 }
@@ -108,6 +117,7 @@ pipeline {
         stage('terraform') {
             steps {
                 script {
+                    STEP = "Deploy terraform to fargate"
                     dir('terraform') {
                         if (params.ENVIRONMENT == 'UAT') {
                             sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
@@ -118,6 +128,13 @@ pipeline {
                         } else {
                             sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                         }
+                         // Get Terraform outputs
+                        def terraformOutputs = sh(script: 'terraform output -json', returnStdout: true).trim()
+                        
+                         // Parse JSON manually
+                        def json = new groovy.json.JsonSlurper().parseText(terraformOutputs)
+                        DNS = json.alb_hostname.value
+                       
                     }
 
                 }
@@ -128,12 +145,13 @@ pipeline {
     post {
         success {
             script {
-                sh "curl --location --request POST 'https://api.telegram.org/bot${TOKEN}/sendMessage' --form text='${TEXT_SUCCESS_BUILD}' --form chat_id='${CHAT_ID}'"
+                def message = "The application is deployed successfully. You can access it here: ${DNS}"
+                sh "curl --location --request POST 'https://api.telegram.org/bot${TOKEN}/sendMessage' --form text=' ${message} \n ${TEXT_SUCCESS_BUILD}' --form chat_id='${CHAT_ID}'"
             }
         }
         failure {
             script {
-                sh "curl --location --request POST 'https://api.telegram.org/bot${TOKEN}/sendMessage' --form text='${TEXT_FAILURE_BUILD}' --form chat_id='${CHAT_ID}'"
+                sh "curl --location --request POST 'https://api.telegram.org/bot${TOKEN}/sendMessage' --form text='Step -> ${STEP} \n error build -> ${TEXT_FAILURE_BUILD}' --form chat_id='${CHAT_ID}'"
             }
         }
     }
