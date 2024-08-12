@@ -107,13 +107,14 @@ pipeline {
             steps {
                 script {
                     dir('terraform') {
-                        if (params.ENVIRONMENT == 'dev') {
+                        if (params.ENVIRONMENT == 'UAT') {
                             sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
-                    } else if (params.ENVIRONMENT == 'stage') {
+                    } else if (params.ENVIRONMENT == 'STAGE') {
                             sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
-                    } else if (params.ENVIRONMENT == 'prod') {
+                    } else if (params.ENVIRONMENT == 'PROD') {
                             sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
-                        }
+                    } else {
+                        sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                     }
 
                 }
