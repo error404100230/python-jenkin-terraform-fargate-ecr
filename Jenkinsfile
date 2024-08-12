@@ -146,7 +146,7 @@ pipeline {
         success {
             script {
                 def message = "The application is deployed successfully. You can access it here: ${DNS}"
-                sh "curl --location --request POST 'https://api.telegram.org/bot${TOKEN}/sendMessage' --form text=' ${message} \n ${TEXT_SUCCESS_BUILD}' --form chat_id='${CHAT_ID}'"
+                sh "curl --location --request POST 'https://api.telegram.org/bot${TOKEN}/sendMessage' --form text=' ${message}' --form chat_id='${CHAT_ID}'"
             }
         }
         failure {
