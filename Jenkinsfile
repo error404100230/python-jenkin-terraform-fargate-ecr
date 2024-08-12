@@ -82,9 +82,7 @@ pipeline {
         }
         stage('Logging into AWS ECR') {
             steps {
-                sh 'aws ecr get-login-password --region ap-southeast-1 
-                | docker login --username AWS --password-stdin 
-                767397732282.dkr.ecr.ap-southeast-1.amazonaws.com'
+                sh 'aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 767397732282.dkr.ecr.ap-southeast-1.amazonaws.com'
             }
         }
         stage('Pushing into ECR') {
@@ -108,20 +106,12 @@ pipeline {
             steps {
                 script {
                     dir('terraform') {
-                        if (params.ENVIRONMENT == 'dev') {
-                            sh "terraform apply -var-file='dev.tfvars' -var 
-                            'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' 
-                            -auto-approve"
+                    if (params.ENVIRONMENT == 'dev') {
+                            sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                     } else if (params.ENVIRONMENT == 'stage') {
-                            sh "terraform apply -var-file='stage.tfvars' -var 
-                            'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}'
-                             -auto-approve"
+                            sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                     } else if (params.ENVIRONMENT == 'prod') {
-                            sh "terraform apply -var-file='prod.tfvars' -var 
-                            'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' 
-                             -auto-approve"
-                        }
-                    }
+                            sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                 }
             }
         }
