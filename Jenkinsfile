@@ -64,7 +64,7 @@ pipeline {
         stage('Build image in ECR') {
             steps {
                 script {
-                    dir('terraform') {
+                    dir('service') {
                         dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
                     }
                 }
