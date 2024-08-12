@@ -113,8 +113,6 @@ pipeline {
                             sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                     } else if (params.ENVIRONMENT == 'PROD') {
                             sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
-                    } else {
-                        sh "terraform apply -var 'app_image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}' -auto-approve"
                     }
 
                 }
