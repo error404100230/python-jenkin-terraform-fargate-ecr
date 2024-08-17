@@ -101,6 +101,15 @@ pipeline {
                     STEP = "Pushing into ECR"
                     sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
                     sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+                    // Commit the updated package.json file
+                    // sh "git commit -am 'Update version to ${env.NUMBER}'"
+                     
+                    // Create a Git tag with the release version
+                    sh "git tag ${IMAGE_TAG} "
+                     
+                    // Push the changes and tags to the remote repository
+                    sh "git push --set-upstream origin main"
+                    sh "git push --tags --set-upstream origin main"
                 }
             }
         }
