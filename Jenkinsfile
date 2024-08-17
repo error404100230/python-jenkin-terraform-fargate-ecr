@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
-        AWS_ACCOUNT_ID = '767397732282'
+        AWS_ACCOUNT_ID = '010526267133'
         AWS_DEFAULT_REGION = 'ap-southeast-1'
         IMAGE_REPO_NAME = 'python'
         IMAGE_TAG = "v${env.BUILD_NUMBER}"
@@ -91,7 +91,7 @@ pipeline {
             steps {
                 script {
                     STEP = "Logging into AWS ECR"
-                    sh "aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 767397732282.dkr.ecr.ap-southeast-1.amazonaws.com"
+                    sh "aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 010526267133.dkr.ecr.ap-southeast-1.amazonaws.com"
                 }
             }
         }
